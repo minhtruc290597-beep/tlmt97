@@ -12,7 +12,7 @@ user_name = st.sidebar.text_input("Nhập tên của bạn:", "Người dùng")
 number_of_rows = st.sidebar.slider("Chọn số dòng dữ liệu mẫu:", 5, 50, 10)
 
 # 3. Hiển thị lời chào cá nhân hóa
-st.success(far"Xin chào **{user_name}**! Chúc bạn có một ngày làm việc hiệu quả.")
+st.success(f"Xin chào **{user_name}**! Chúc bạn có một ngày làm việc hiệu quả.")
 
 # 4. Tạo và hiển thị bảng dữ liệu mẫu (DataFrame)
 st.subheader("1. Bảng dữ liệu ngẫu nhiên")
