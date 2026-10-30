@@ -110,3 +110,87 @@ except Exception as e:
 with st.container():
   st.markdown("### 📦 Báo cáo xuất nhập kho")
   st.info("Khu vực này hiển thị thông tin nhập xuất kho.")
+import pandas as pd
+import streamlit as st
+
+# 1. Tiêu đề ứng dụng
+st.title("📦 Ứng dụng Quản lý & Phân tích Dữ liệu Kho")
+st.subheader("Tự động tạo Báo cáo Xuất - Nhập Kho")
+
+# 2. Tạo ô cho phép người dùng tải file Excel lên giao diện web
+uploaded_file = st.file_uploader(
+    "Vui lòng tải lên file Excel (định dạng .xlsx hoặc .xls)",
+    type=["xlsx", "xls"],
+)
+
+# 3. Kiểm tra nếu người dùng đã tải file lên
+if uploaded_file is not None:
+  try:
+    # Đọc dữ liệu từ Sheet1 của file vừa tải lên
+    df_sheet1 = pd.read_excel(uploaded_file, sheet_name="Sheet1")
+
+    # Hiển thị thông báo thành công
+    st.success("Tải file và đọc dữ liệu thành công!")
+
+    # Phân loại dữ liệu thành Xuất kho và Nhập kho dựa theo bưu cục
+    # (Bạn có thể thay đổi tên bưu cục 'HOCHIMINH CENTER' cho phù hợp với dữ liệu thực tế của bạn)
+    df_xuat = df_sheet1[df_sheet1["Bưu cục xuất"] == "HOCHIMINH CENTER"]
+    df_nhap = df_sheet1[df_sheet1["Bưu cục nhập"] == "HOCHIMINH CENTER"]
+
+    # Hàm gom nhóm dữ liệu theo đúng chuẩn báo cáo
+    def group_data(df):
+      if df.empty:
+        return pd.DataFrame()
+
+      grouped = (
+          df.groupby(
+              [
+                  "Mã vận đơn",
+                  "Bưu cục xuất",
+                  "Bưu cục nhập",
+                  "Bưu cục đích",
+                  "Bưu cục gửi",
+                  "Tên hàng hóa",
+              ]
+          )
+          .agg(
+              {
+                  "Mã đơn con": "count",  # Đếm số lượng mã đơn con
+                  "Trọng lượng tính cước (kg)": "sum",  # Tổng trọng lượng
+                  "Tổng số kiện": "sum",  # Tổng số kiện
+              }
+          )
+          .reset_index()
+      )
+
+      # Thêm cột số lượng mã vận đơn
+      grouped["Số mã vận đơn"] = 1
+
+      # Đổi tên cột cho đẹp và khớp với báo cáo mẫu
+      grouped.rename(columns={"Mã đơn con": "Số mã đơn con"}, inplace=True)
+      return grouped
+
+    # --- HIỂN THỊ BÁO CÁO XUẤT KHO ---
+    st.markdown("---")
+    st.markdown("### 🔴 TỔNG XUẤT KHO / 总出库")
+    report_xuat = group_data(df_xuat)
+    if not report_xuat.empty:
+      st.dataframe(report_xuat, use_container_width=True)
+    else:
+      st.info("Không có dữ liệu xuất kho.")
+
+    # --- HIỂN THỊ BÁO CÁO NHẬP KHO ---
+    st.markdown("---")
+    st.markdown("### 🔵 TỔNG NHẬP KHO / 总入库")
+    report_nhap = group_data(df_nhap)
+    if not report_nhap.empty:
+      st.dataframe(report_nhap, use_container_width=True)
+    else:
+      st.info("Không có dữ liệu nhập kho.")
+
+  except Exception as e:
+    st.error(f"Đã xảy ra lỗi khi xử lý file: {e}")
+else:
+  # Hướng dẫn khi chưa có file
+  st.info("👆 Hãy bấm nút **Browse files** ở trên để tải file Excel vào hệ thống.")
+    
