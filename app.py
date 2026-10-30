@@ -194,4 +194,3 @@ else:
   # Hướng dẫn khi chưa có file
   st.info("👆 Hãy bấm nút **Browse files** ở trên để tải file Excel vào hệ thống.")
     
-pip install openpyxl
