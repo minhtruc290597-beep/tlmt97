@@ -30,3 +30,9 @@ st.line_chart(data)
 if st.button("Nhấn vào đây để xem thông báo"):
     st.balloons()
     st.info("Tuyệt vời! Bạn đã tương tác thành công với ứng dụng Streamlit.")
+import streamlit as st
+
+# Dán đoạn code báo cáo xuất nhập kho vào đây
+with st.container():
+  st.markdown("### 📦 Báo cáo xuất nhập kho")
+  st.info("Khu vực này hiển thị thông tin nhập xuất kho.")
